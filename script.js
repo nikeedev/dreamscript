@@ -6,7 +6,10 @@ import {compile} from './dreamscript.js';
 // }
 // `;
 
-const str = `1 + 1`;
+const str = `
+//1 + 1
+1+2
+`;
 
 let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px;";
 

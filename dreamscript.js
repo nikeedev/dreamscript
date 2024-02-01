@@ -21,6 +21,7 @@ const TokenTypes = new Enum(
         "Minus", // -
         "Star", // *
         "Slash", // /
+        "Comment", //
         "IsSameAs", // =
         "Colon", // :
         "Init", // :=
@@ -78,9 +79,11 @@ class Lexer {
                     case ':':
                         if (this.chars[i + 1] === ':') {
                             this.tokens.push(new Token(TokenTypes.ConstInit, this.chars[i] + this.chars[i + 1]));
+                            i++;
                             break;
                         } else if (this.chars[i + 1] === '=') {
                             this.tokens.push(new Token(TokenTypes.Init, this.chars[i] + this.chars[i + 1]));
+                            i++;
                             break;
                         }
                         this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
@@ -97,7 +100,26 @@ class Lexer {
                     case '+':
                         this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
                         break;
-
+                    
+                    case '*':
+                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                        break;
+                        
+                    case '/':
+                        if (this.chars[i + 1] === '/') {
+                            let n = 1;
+                            let sn = "";
+                            while (this.chars[i+n] != '\n') {
+                                n++;
+                                sn += this.chars[i + n];
+                            } 
+                            this.tokens.push(new Token(TokenTypes.Comment, sn));
+                            i+=n;
+                            break;
+                        } 
+                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                        break;
+                        
                     default:
                         this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
                         break;
