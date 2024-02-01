@@ -6,10 +6,10 @@ class Enum {
         let enums = {};
 
         array_enums.forEach((enumr, i) => {
-            enums[enumr] = enumr;
+            this[enumr] = enumr;
         });
 
-        return enums;
+        // return enums;
     }
 }
 
@@ -23,8 +23,11 @@ const TokenTypes = new Enum(
         "Slash", // /
         "IsSameAs", // =
         "Colon", // :
+        "Init", // :=
         "ConstInit", // ::
         "Number", // 0-9
+        "OpenParen",   // (
+        "ClosedParen", // )
         "Identifier", // anything else
         "Unknown" //  ¯\_(ツ)_/¯
     ]
@@ -53,39 +56,52 @@ class Lexer {
 
     lex() {
         for (let i = 0; i < this.chars.length; i++) {
-            switch (this.chars[i]) {
-                case '\n':
-                case ' ':
-                case '\t':
-                case '\r':
-                    this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]))
-                    break;
-                case ':':
-                    if (this.chars[i+1] === ':') {
-                        this.tokens.push(new Token(TokenTypes.ConstInit, this.chars[i]+this.chars[i+1]));
+            // console.log(/\d/.test(this.chars[i]));
+
+            if (/\d/.test(this.chars[i])) {
+                let int = this.chars[i];
+                let n = 1;
+                while (/\d/.test(this.chars[i + n])) {
+                    int += this.chars[i + n];
+                    n++;
+                }
+                this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
+            } else {
+                switch (this.chars[i]) {
+                    case '\n':
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                        this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
                         break;
-                    }
-                    this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
-                    break;
 
-                case '+':
-                    this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
-                    break;
+                    case ':':
+                        if (this.chars[i + 1] === ':') {
+                            this.tokens.push(new Token(TokenTypes.ConstInit, this.chars[i] + this.chars[i + 1]));
+                            break;
+                        } else if (this.chars[i + 1] === '=') {
+                            this.tokens.push(new Token(TokenTypes.Init, this.chars[i] + this.chars[i + 1]));
+                            break;
+                        }
+                        this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
+                        break;
+                    
+                    case '(':
+                        this.tokens.push(new Token(TokenTypes.OpenParan, this.chars[i]));
+                        break;
+                        
+                    case ')':
+                        this.tokens.push(new Token(TokenTypes.ClosedParan, this.chars[i]));
+                        break;
 
-                case Number.isInteger(parseInt(this.chars[i])):
-                    let int = this.chars[i];
-                    let n = 1;
-                    while (Number.isInteger(parseInt(this.chars[i+n]))) {
-                        int += parseInt(this.chars[i+n]);
-                        n++;
-                    }
-                    // this.tokens.push(new Token(TokenTypes.Number, this.chars[i]));
-                    this.tokens.push(new Token(TokenTypes.Number, int));
-                    break;
-                default: 
-                    this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
-                    break;
+                    case '+':
+                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                        break;
 
+                    default:
+                        this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
+                        break;
+                }
             }
         }
     }
@@ -94,5 +110,5 @@ class Lexer {
 export const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
-    console.log(compiler.tokens);
+    return compiler.tokens;
 };
