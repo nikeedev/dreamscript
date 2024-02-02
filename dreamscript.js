@@ -19,8 +19,8 @@ const TokenTypes = new Enum(
         "Whitespace", // 
         "Plus", // + 
         "Minus", // -
-        "Star", // *
-        "Slash", // /
+        "Multiplication", // *
+        "Division", // /
         "Comment", //
         "IsSameAs", // =
         "Colon", // :
@@ -88,38 +88,38 @@ class Lexer {
                         }
                         this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
                         break;
-                    
+
                     case '(':
-                        this.tokens.push(new Token(TokenTypes.OpenParan, this.chars[i]));
+                        this.tokens.push(new Token(TokenTypes.OpenParen, this.chars[i]));
                         break;
-                        
+
                     case ')':
-                        this.tokens.push(new Token(TokenTypes.ClosedParan, this.chars[i]));
+                        this.tokens.push(new Token(TokenTypes.ClosedParen, this.chars[i]));
                         break;
 
                     case '+':
                         this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
                         break;
-                    
+
                     case '*':
-                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                        this.tokens.push(new Token(TokenTypes.Multiplication, this.chars[i]));
                         break;
-                        
+
                     case '/':
                         if (this.chars[i + 1] === '/') {
+                            break;
                             let n = 1;
                             let sn = "";
-                            while (this.chars[i+n] != '\n') {
+                            while (this.chars[i + n] != '\n') {
                                 n++;
                                 sn += this.chars[i + n];
-                            } 
+                            }
                             this.tokens.push(new Token(TokenTypes.Comment, sn));
-                            i+=n;
-                            break;
-                        } 
-                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                            i += n;
+                        }
+                        this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
                         break;
-                        
+
                     default:
                         this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
                         break;
@@ -132,5 +132,12 @@ class Lexer {
 export const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
-    return compiler.tokens;
+
+    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px;";
+
+    console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
+    console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
+
+    console.table(compiler.tokens);
+    console.groupEnd();
 };
