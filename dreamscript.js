@@ -2,7 +2,7 @@
 // wrote this just to use in this project xD
 
 class Enum {
-    constructor(array_enums) {
+    constructor(...array_enums) {
         let enums = {};
 
         array_enums.forEach((enumr, i) => {
@@ -15,23 +15,21 @@ class Enum {
 
 
 const TokenTypes = new Enum(
-    [
-        "Whitespace", // 
-        "Plus", // + 
-        "Minus", // -
-        "Multiplication", // *
-        "Division", // /
-        "Comment", //
-        "IsSameAs", // =
-        "Colon", // :
-        "Init", // :=
-        "ConstInit", // ::
-        "Number", // 0-9
-        "OpenParen",   // (
-        "ClosedParen", // )
-        "Identifier", // anything else
-        "Unknown" //  ¯\_(ツ)_/¯
-    ]
+    "Whitespace", // 
+    "Plus", // + 
+    "Minus", // -
+    "Multiplication", // *
+    "Division", // /
+    "Comment", //
+    "IsSameAs", // =
+    "Colon", // :
+    "Init", // :=
+    "ConstInit", // ::
+    "Number", // 0-9
+    "OpenParen",   // (
+    "ClosedParen", // )
+    "Identifier", // anything else
+    "Unknown" //  ¯\_(ツ)_/¯
 );
 
 // console.log(TokenTypes);
@@ -133,7 +131,7 @@ export const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
 
-    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px;";
+    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(#fff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
 
     console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
     console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
