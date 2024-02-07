@@ -23,6 +23,7 @@ const TokenTypes = new Enum(
     "Comment", //
     "IsSameAs", // =
     "Colon", // :
+    "String", // ""
     "Init", // :=
     "ConstInit", // ::
     "Number", // 0-9
@@ -64,8 +65,27 @@ class Lexer {
                     int += this.chars[i + n];
                     n++;
                 }
+                i += n;
                 this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
-            } else {
+            } 
+            else if (/^[a-z0-9]+$/i.test(this.chars[i])) {
+                let identifier = this.chars[i];
+                let n = 1;
+                while (/^[a-z0-9]+$/i.test(this.chars[i + n])) {
+                    identifier += this.chars[i + n];
+                    n++;
+                } 
+                i += n;
+
+                switch (identifier) {
+                    case "int":
+                        break;
+                    default: 
+                        this.tokens.push(new Token(TokenTypes.Identifier, identifier));
+                        break;
+                }
+            }
+            else {
                 switch (this.chars[i]) {
                     case '\n':
                     case ' ':
@@ -105,18 +125,30 @@ class Lexer {
 
                     case '/':
                         if (this.chars[i + 1] === '/') {
-                            break;
                             let n = 1;
                             let sn = "";
                             while (this.chars[i + n] != '\n') {
                                 n++;
                                 sn += this.chars[i + n];
                             }
-                            this.tokens.push(new Token(TokenTypes.Comment, sn));
+                            // this.tokens.push(new Token(TokenTypes.Comment, sn));
                             i += n;
+                            break;
                         }
                         this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
                         break;
+
+                    case '"': 
+                        let n = 1;
+                        let str = "";
+                        while (this.chars[i + n] != `"`) {
+                            str += this.chars[i + n];
+                            n++;
+                        }
+                        i += n + 1;
+                        this.tokens.push(new Token(TokenTypes.String, str));
+                        break;
+                    
 
                     default:
                         this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
@@ -127,11 +159,19 @@ class Lexer {
     }
 }
 
+class Parser {
+    tokens = [];
+
+    constructor(tokens) {
+        this.tokens = tokens;
+    }
+}
+
 export const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
 
-    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(#fff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
 
     console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
     console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
