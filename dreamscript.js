@@ -1,4 +1,3 @@
-
 // wrote this just to use in this project xD
 
 class Enum {
@@ -67,20 +66,20 @@ class Lexer {
                 }
                 i += n;
                 this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
-            } 
+            }
             else if (/^[a-z0-9]+$/i.test(this.chars[i])) {
                 let identifier = this.chars[i];
                 let n = 1;
                 while (/^[a-z0-9]+$/i.test(this.chars[i + n])) {
                     identifier += this.chars[i + n];
                     n++;
-                } 
+                }
                 i += n;
 
                 switch (identifier) {
                     case "int":
                         break;
-                    default: 
+                    default:
                         this.tokens.push(new Token(TokenTypes.Identifier, identifier));
                         break;
                 }
@@ -138,7 +137,7 @@ class Lexer {
                         this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
                         break;
 
-                    case '"': 
+                    case '"':
                         let n = 1;
                         let str = "";
                         while (this.chars[i + n] != `"`) {
@@ -148,7 +147,7 @@ class Lexer {
                         i += n + 1;
                         this.tokens.push(new Token(TokenTypes.String, str));
                         break;
-                    
+
 
                     default:
                         this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
@@ -167,6 +166,7 @@ class Parser {
     }
 }
 
+/*
 export const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
@@ -179,3 +179,38 @@ export const compile = (text) => {
     console.table(compiler.tokens);
     console.groupEnd();
 };
+*/
+
+const compile = (text) => {
+    const compiler = new Lexer(text);
+    compiler.lex();
+
+    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+
+    console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
+    console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
+
+    console.table(compiler.tokens);
+    console.groupEnd();
+};
+
+if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
+    if (process.argv[2] !== undefined) {
+        const fs = require('node:fs');
+        fs.readFile(process.argv[2], 'utf8', (err, data) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            compile(data);
+        });
+    } else {
+        let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+
+        console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
+        console.group("%cdreamscript ⭐: Usage: [file].dream", `${general} padding: 3px; font-size: 12px;`);
+
+        console.table(compiler.tokens);
+        console.groupEnd();
+    }
+}

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Small language in JavaScript",
   "main": "dreamscript.js",
-  "type": "module",
   "scripts": {
     "start": "node script.js"
   },
