@@ -35,8 +35,10 @@ const TokenTypes = new Enum(
 // console.log(TokenTypes);
 
 class Token {
-    token_type
-    value
+    /** @type {Enum} */
+    token_type;
+    /** @type {String} */
+    value = "";
     constructor(token_type, value) {
         this.token_type = token_type;
         this.value = value;
@@ -44,10 +46,17 @@ class Token {
 }
 
 class Lexer {
-    text = ""
+    /** @type {String} */
+    text = "";
+    /** @type {Array<String>} */
     chars = [];
+    /** @type {Array<Token>} */
     tokens = [];
-    /** @constructor */
+
+    /**
+     * @constructor 
+     * @param {String} text
+    */
     constructor(text) {
         this.text = text;
         this.chars = text.split('');
@@ -159,11 +168,22 @@ class Lexer {
 }
 
 class Parser {
+    /** @type {Array<Token>} */
     tokens = [];
 
+    current = 0;
+
+    /**
+     * @constructor
+     * @param {Array<Token>} tokens 
+     */
     constructor(tokens) {
         this.tokens = tokens;
     }
+
+    // expression() {
+    //     return equality();
+    // }
 }
 
 /*
@@ -194,23 +214,4 @@ const compile = (text) => {
     console.groupEnd();
 };
 
-if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
-    if (process.argv[2] !== undefined) {
-        const fs = require('node:fs');
-        fs.readFile(process.argv[2], 'utf8', (err, data) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            compile(data);
-        });
-    } else {
-        let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
-
-        console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-        console.group("%cdreamscript ⭐: Usage: [file].dream", `${general} padding: 3px; font-size: 12px;`);
-
-        console.table(compiler.tokens);
-        console.groupEnd();
-    }
-}
+export { compile };
