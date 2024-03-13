@@ -4,7 +4,7 @@
   "description": "Small language in JavaScript",
   "main": "dreamscript.js",
   "scripts": {
-    "start": "node script.js"
+    "start": "node dreamscript.js"
   },
   "keywords": [],
   "author": "",

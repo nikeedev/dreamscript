@@ -1,4 +1,1 @@
-
-main :: () {
-    println("Hello world!");
-}
+print "hello world"

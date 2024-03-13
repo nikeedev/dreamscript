@@ -1,11 +1,10 @@
 // wrote this just to use in this project xD
-
 class Enum {
     constructor(...array_enums) {
         let enums = {};
 
-        array_enums.forEach((enumr, i) => {
-            this[enumr] = enumr;
+        array_enums.forEach((enum_N, i) => {
+            this[enum_N] = enum_N;
         });
 
         // return enums;
@@ -20,7 +19,8 @@ const TokenTypes = new Enum(
     "Multiplication", // *
     "Division", // /
     "Comment", //
-    "IsSameAs", // =
+    "Equals", // =
+    "BoolEquals", // ==
     "Colon", // :
     "String", // ""
     "Init", // :=
@@ -113,6 +113,15 @@ class Lexer {
                             break;
                         }
                         this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
+                        break;
+                    
+                    case '=':
+                        if (this.chars[i + 1] === '=') {
+                            this.tokens.push(new Token(TokenTypes.BoolEquals, this.chars[i] + this.chars[i + 1]));
+                            i++;
+                            break;
+                        }
+                        this.tokens.push(new Token(TokenTypes.Equals, this.chars[i]));
                         break;
 
                     case '(':
@@ -208,10 +217,32 @@ const compile = (text) => {
     let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
 
     console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-    console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
-
+    
     console.table(compiler.tokens);
-    console.groupEnd();
 };
 
-export { compile };
+if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
+    if (process.argv[2] !== undefined) {
+        const fs = require('node:fs');
+        fs.readFile(process.argv[2], 'utf8', (err, data) => {
+            if (err) {
+                console.error("dreamscript ⭐ error reading/getting file: ", err);
+                return;
+            } else {
+                let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+
+                console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
+                console.group("%cdreamscript ⭐: Usage: [file].dream", `${general} padding: 3px; font-size: 12px;`);
+
+                compile(data);
+                console.groupEnd();
+            }
+        });
+    } else {
+        let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+
+        console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
+        console.group("%cdreamscript ⭐: Usage: [file].dream", `${general} padding: 3px; font-size: 12px;`);
+        console.groupEnd();
+    }
+}
