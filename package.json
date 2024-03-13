@@ -5,7 +5,7 @@
   "main": "dreamscript.js",
   "scripts": {
     "start": "node dreamscript.js",
-    "build": ""
+    "build": "node --experimental-sea-config sea-config.json && npx postject dreamscript.exe NODE_SEA_BLOB sea-prep.blob\n--sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite"
   },
   "keywords": [],
   "author": "",
