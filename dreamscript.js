@@ -226,7 +226,7 @@ if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
         const fs = require('node:fs');
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
-                console.error("dreamscript ⭐ error reading/getting file: ", err);
+                console.error("dreamscript ⭐ error reading/getting the source file: ", err);
                 return;
             } else {
                 let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";

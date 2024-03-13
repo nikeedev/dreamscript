@@ -4,9 +4,11 @@
   "description": "Small language in JavaScript",
   "main": "dreamscript.js",
   "scripts": {
-    "start": "node dreamscript.js"
+    "start": "node dreamscript.js",
+    "build": ""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "packageManager": "yarn@4.1.1"
 }
