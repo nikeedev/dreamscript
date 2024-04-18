@@ -28,7 +28,17 @@ const TokenTypes = new Enum(
     "Number", // 0-9
     "OpenParen",   // (
     "ClosedParen", // )
-    "Identifier", // anything else
+    "OpenBrace",   // {
+    "ClosedBrace", // }
+    "OpenBracket", // [
+    "ClosedBracket", // ]
+    "Function", // fn
+    "PrintLn",
+    "Identifier", // anything else,
+    "If", // if 
+    "Else", // else
+    "For", // for
+    "While", // while
     "Unknown" //  ¯\_(ツ)_/¯
 );
 
@@ -63,114 +73,155 @@ class Lexer {
     }
 
     lex() {
+        // console.log(this.chars);
         for (let i = 0; i < this.chars.length; i++) {
-            // console.log(/\d/.test(this.chars[i]));
+            console.log(this.chars[i]);
+            
+            
+            switch (this.chars[i]) {
+                case '\n':
+                case ' ':
+                case '\t':
+                case '\r':
+                    // this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
+                    break;
 
-            if (/\d/.test(this.chars[i])) {
-                let int = this.chars[i];
-                let n = 1;
-                while (/\d/.test(this.chars[i + n])) {
-                    int += this.chars[i + n];
-                    n++;
-                }
-                i += n;
-                this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
-            }
-            else if (/^[a-z0-9]+$/i.test(this.chars[i])) {
-                let identifier = this.chars[i];
-                let n = 1;
-                while (/^[a-z0-9]+$/i.test(this.chars[i + n])) {
-                    identifier += this.chars[i + n];
-                    n++;
-                }
-                i += n;
+                case ':':
+                    if (this.chars[i + 1] === ':') {
+                        this.tokens.push(new Token(TokenTypes.ConstInit, this.chars[i] + this.chars[i + 1]));
+                        i++;
+                        break;
+                    } else if (this.chars[i + 1] === '=') {
+                        this.tokens.push(new Token(TokenTypes.Init, this.chars[i] + this.chars[i + 1]));
+                        i++;
+                        break;
+                    }
+                    this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
+                    break;
 
-                switch (identifier) {
-                    case "int":
+                case '=':
+                    if (this.chars[i + 1] === '=') {
+                        this.tokens.push(new Token(TokenTypes.BoolEquals, this.chars[i] + this.chars[i + 1]));
+                        i++;
                         break;
-                    default:
-                        this.tokens.push(new Token(TokenTypes.Identifier, identifier));
-                        break;
-                }
-            }
-            else {
-                switch (this.chars[i]) {
-                    case '\n':
-                    case ' ':
-                    case '\t':
-                    case '\r':
-                        this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
-                        break;
+                    }
+                    this.tokens.push(new Token(TokenTypes.Equals, this.chars[i]));
+                    break;
 
-                    case ':':
-                        if (this.chars[i + 1] === ':') {
-                            this.tokens.push(new Token(TokenTypes.ConstInit, this.chars[i] + this.chars[i + 1]));
-                            i++;
-                            break;
-                        } else if (this.chars[i + 1] === '=') {
-                            this.tokens.push(new Token(TokenTypes.Init, this.chars[i] + this.chars[i + 1]));
-                            i++;
-                            break;
+                case '+':
+                    this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
+                    break;
+
+                case '*':
+                    this.tokens.push(new Token(TokenTypes.Multiplication, this.chars[i]));
+                    break;
+
+                case '/':
+                    if (this.chars[i + 1] === '/') {
+                        n = 1;
+                        let sn = "";
+                        while (this.chars[i + n] != '\n') {
+                            n++;
+                            sn += this.chars[i + n];
                         }
-                        this.tokens.push(new Token(TokenTypes.Colon, this.chars[i]));
+                        // this.tokens.push(new Token(TokenTypes.Comment, sn));
+                        i += n;
                         break;
-                    
-                    case '=':
-                        if (this.chars[i + 1] === '=') {
-                            this.tokens.push(new Token(TokenTypes.BoolEquals, this.chars[i] + this.chars[i + 1]));
-                            i++;
-                            break;
-                        }
-                        this.tokens.push(new Token(TokenTypes.Equals, this.chars[i]));
-                        break;
+                    }
+                    this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
+                    break;
 
-                    case '(':
-                        this.tokens.push(new Token(TokenTypes.OpenParen, this.chars[i]));
-                        break;
+                case '"':
+                    let n = 1;
+                    let str = "";
+                    while (this.chars[i + n] != `"`) {
+                        str += this.chars[i + n];
+                        n++;
+                    }
+                    i += n + 1;
+                    this.tokens.push(new Token(TokenTypes.String, str));
+                    break;
 
-                    case ')':
-                        this.tokens.push(new Token(TokenTypes.ClosedParen, this.chars[i]));
-                        break;
+                case '(':
+                    this.tokens.push(new Token(TokenTypes.OpenParen, this.chars[i]));
+                    break;
 
-                    case '+':
-                        this.tokens.push(new Token(TokenTypes.Plus, this.chars[i]));
-                        break;
+                case ')':
+                    this.tokens.push(new Token(TokenTypes.ClosedParen, this.chars[i]));
+                    break;
 
-                    case '*':
-                        this.tokens.push(new Token(TokenTypes.Multiplication, this.chars[i]));
-                        break;
+                case '{':
+                    this.tokens.push(new Token(TokenTypes.OpenBrace, this.chars[i]));
+                    break;
 
-                    case '/':
-                        if (this.chars[i + 1] === '/') {
-                            let n = 1;
-                            let sn = "";
-                            while (this.chars[i + n] != '\n') {
-                                n++;
-                                sn += this.chars[i + n];
-                            }
-                            // this.tokens.push(new Token(TokenTypes.Comment, sn));
-                            i += n;
-                            break;
-                        }
-                        this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
-                        break;
+                case '}':
+                    this.tokens.push(new Token(TokenTypes.ClosedBrace, this.chars[i]));
+                    break;
 
-                    case '"':
+                case '[':
+                    this.tokens.push(new Token(TokenTypes.OpenBracket, this.chars[i]));
+                    break;
+
+                case ']':
+                    this.tokens.push(new Token(TokenTypes.ClosedBracket, this.chars[i]));
+                    break;
+
+                default:
+                    if (/\d/.test(this.chars[i])) {
+                        let int = this.chars[i];
                         let n = 1;
-                        let str = "";
-                        while (this.chars[i + n] != `"`) {
-                            str += this.chars[i + n];
+                        while (/\d/.test(this.chars[i + n])) {
+                            int += this.chars[i + n];
                             n++;
                         }
-                        i += n + 1;
-                        this.tokens.push(new Token(TokenTypes.String, str));
+                        i += n;
+                        this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
                         break;
+                    }
+                    else if (/^[a-zA-Z0-9_]+$/i.test(this.chars[i])) {
+                        // console.log("ident")
+                        let identifier = this.chars[i];
+                        let n = 1;
 
+                        while (/^[a-zA-Z0-9_]+$/i.test(this.chars[i + n])  && (this.chars[i + n] !== '(' && this.chars[i + n] !== ')')) {
+                            identifier += this.chars[i + n];
+                            n++;
+                        }
+                        i += n;
 
-                    default:
-                        this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
+                        switch (identifier) {
+                            case "fn":
+                                this.tokens.push(new Token(TokenTypes.Function, identifier));
+                                break;
+
+                            case "println":
+                                this.tokens.push(new Token(TokenTypes.PrintLn, identifier));
+                                break;
+
+                            case "if":
+                                this.tokens.push(new Token(TokenTypes.If, identifier));
+                                break;
+
+                            case "else":
+                                this.tokens.push(new Token(TokenTypes.Else, identifier));
+                                break;
+
+                            case "for":
+                                this.tokens.push(new Token(TokenTypes.For, identifier));
+                                break;
+
+                            case "while":
+                                this.tokens.push(new Token(TokenTypes.While, identifier));
+                                break;
+
+                            default:
+                                this.tokens.push(new Token(TokenTypes.Identifier, identifier));
+                                break;
+                        }
                         break;
-                }
+                    }
+                    this.tokens.push(new Token(TokenTypes.Unknown, this.chars[i]));
+                    break;
             }
         }
     }
@@ -193,6 +244,10 @@ class Parser {
     // expression() {
     //     return equality();
     // }
+}
+
+const run_tokens = (tokens) => {
+    console.log(tokens)
 }
 
 /*
@@ -219,6 +274,8 @@ const compile = (text) => {
     console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
 
     console.table(compiler.tokens);
+
+    run_tokens(compiler.tokens);
 };
 
 if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
