@@ -1,3 +1,4 @@
+const fs = require('node:fs');
 // wrote this just to use in this project xD
 class Enum {
     constructor(...array_enums) {
@@ -11,13 +12,13 @@ class Enum {
     }
 }
 
-
 const TokenTypes = new Enum(
     "Whitespace", // 
     "Plus", // + 
     "Minus", // -
     "Multiplication", // *
     "Division", // /
+    "Percent", // %
     "Comment", //
     "Equals", // =
     "BoolEquals", // ==
@@ -33,13 +34,15 @@ const TokenTypes = new Enum(
     "OpenBracket", // [
     "ClosedBracket", // ]
     "Function", // fn
-    "PrintLn",
     "Identifier", // anything else,
     "If", // if 
     "Else", // else
-    "For", // for
-    "While", // while
-    "Unknown" //  ¯\_(ツ)_/¯
+    "Dot", // .
+    "Comma", // ,
+    "Pixels", // px
+    "Print", // print
+    "Rem", // rem
+    "Unknown" //  ¯\_(ツ)_/¯,
 );
 
 // console.log(TokenTypes);
@@ -75,15 +78,23 @@ class Lexer {
     lex() {
         // console.log(this.chars);
         for (let i = 0; i < this.chars.length; i++) {
-            console.log(this.chars[i]);
-            
-            
+            // console.log(this.chars[i]);
+
+
             switch (this.chars[i]) {
                 case '\n':
                 case ' ':
                 case '\t':
                 case '\r':
-                    // this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
+                    this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
+                    break;
+
+                case '.':
+                    this.tokens.push(new Token(TokenTypes.Dot, this.chars[i]));
+                    break;
+
+                case ',':
+                    this.tokens.push(new Token(TokenTypes.Comma, this.chars[i]));
                     break;
 
                 case ':':
@@ -118,7 +129,7 @@ class Lexer {
 
                 case '/':
                     if (this.chars[i + 1] === '/') {
-                        n = 1;
+                        let n = 1;
                         let sn = "";
                         while (this.chars[i + n] != '\n') {
                             n++;
@@ -131,6 +142,10 @@ class Lexer {
                     this.tokens.push(new Token(TokenTypes.Division, this.chars[i]));
                     break;
 
+                case "%":
+                    this.tokens.push(new Token(TokenTypes.Percent, this.chars[i]));
+                    break;
+
                 case '"':
                     let n = 1;
                     let str = "";
@@ -138,7 +153,7 @@ class Lexer {
                         str += this.chars[i + n];
                         n++;
                     }
-                    i += n + 1;
+                    i += n;
                     this.tokens.push(new Token(TokenTypes.String, str));
                     break;
 
@@ -167,36 +182,38 @@ class Lexer {
                     break;
 
                 default:
-                    if (/\d/.test(this.chars[i])) {
+                    if (/[0-9.]/.test(this.chars[i])) {
                         let int = this.chars[i];
                         let n = 1;
-                        while (/\d/.test(this.chars[i + n])) {
+                        while (/[0-9.]/.test(this.chars[i + n])) {
                             int += this.chars[i + n];
                             n++;
                         }
-                        i += n;
-                        this.tokens.push(new Token(TokenTypes.Number, parseInt(int)));
+                        i += n - 1;
+                        this.tokens.push(new Token(TokenTypes.Number, parseFloat(int)));
+                        // console.log("here its me!:", this.chars[i]);
                         break;
                     }
-                    else if (/^[a-zA-Z0-9_]+$/i.test(this.chars[i])) {
+                    else if (/[a-zA-Z0-9_]+$/i.test(this.chars[i])) {
+
+                        // console.log(i)
                         // console.log("ident")
                         let identifier = this.chars[i];
+                        // console.log("it is: ", identifier);
                         let n = 1;
 
-                        while (/^[a-zA-Z0-9_]+$/i.test(this.chars[i + n])  && (this.chars[i + n] !== '(' && this.chars[i + n] !== ')')) {
+                        while (/^[a-zA-Z0-9_]+$/i.test(this.chars[i + n]) && (this.chars[i + n] !== '(' && this.chars[i + n] !== ')')) {
                             identifier += this.chars[i + n];
+                            // console.log("int manager: ", this.chars[i + n]);
                             n++;
                         }
-                        i += n;
+                        i += n - 1;
+
+                        // console.log("it is: ", identifier.toString());
 
                         switch (identifier) {
-                            case "fn":
-                                this.tokens.push(new Token(TokenTypes.Function, identifier));
-                                break;
-
-                            case "println":
-                                this.tokens.push(new Token(TokenTypes.PrintLn, identifier));
-                                break;
+                            case "print":
+                                this.tokens.push(new Token(TokenTypes.Print, identifier));
 
                             case "if":
                                 this.tokens.push(new Token(TokenTypes.If, identifier));
@@ -206,12 +223,12 @@ class Lexer {
                                 this.tokens.push(new Token(TokenTypes.Else, identifier));
                                 break;
 
-                            case "for":
-                                this.tokens.push(new Token(TokenTypes.For, identifier));
+                            case "px":
+                                this.tokens.push(new Token(TokenTypes.Pixels, identifier));
                                 break;
 
-                            case "while":
-                                this.tokens.push(new Token(TokenTypes.While, identifier));
+                            case "rem":
+                                this.tokens.push(new Token(TokenTypes.Rem, identifier));
                                 break;
 
                             default:
@@ -227,79 +244,109 @@ class Lexer {
     }
 }
 
-class Parser {
-    /** @type {Array<Token>} */
-    tokens = [];
-
-    current = 0;
-
-    /**
-     * @constructor
-     * @param {Array<Token>} tokens 
-     */
-    constructor(tokens) {
-        this.tokens = tokens;
-    }
-
-    // expression() {
-    //     return equality();
-    // }
-}
-
+/** @param tokens {Array<Token>} */
 const run_tokens = (tokens) => {
-    console.log(tokens)
+    let css_src = "";
+    let html_src = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${process.argv[2]}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+`;
+    tokens.forEach(token => {
+        switch (token.token_type) {
+            case TokenTypes.Whitespace:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.Function:
+                css_src += "function";
+                break;
+
+            case TokenTypes.Identifier:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.OpenParen:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.ClosedParen:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.OpenBrace:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.ClosedBrace:
+                css_src += `${token.value} `;
+                break;
+
+            case TokenTypes.String:
+                css_src += `"${token.value}"`;
+                break;
+
+            case TokenTypes.Comma:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.Number:
+                css_src += `${token.value}`;
+                break;
+
+            default:
+                break;
+        }
+    })
+
+    html_src += `
+</body>
+</html>
+    `;
+    try {
+        fs.writeFileSync('index.html', html_src);
+        fs.writeFileSync('style.css', css_src);
+        // file written successfully
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-/*
-export const compile = (text) => {
-    const compiler = new Lexer(text);
-    compiler.lex();
-
-    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
-
-    console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-    console.group("%cdreamscript ⭐ logs", `${general} padding: 3px; font-size: 12px;`);
-
-    console.table(compiler.tokens);
-    console.groupEnd();
-};
-*/
 
 const compile = (text) => {
     const compiler = new Lexer(text);
     compiler.lex();
 
-    let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
+    console.log("dreamscript ⭐ v0.1.0 by nikeedev");
 
-    console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-
-    console.table(compiler.tokens);
+    // console.table(compiler.tokens);
 
     run_tokens(compiler.tokens);
 };
 
 if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
     if (process.argv[2] !== undefined) {
-        const fs = require('node:fs');
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
                 console.error("dreamscript ⭐ error reading/getting the source file: ", err);
                 return;
             } else {
-                let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
-
-                console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-                console.group("%cdreamscript ⭐: Usage: [file].dream", `${general} padding: 3px; font-size: 12px;`);
+                console.log("dreamscript ⭐ v0.1.0 by nikeedev");
+                console.group("dreamscript ⭐: Usage: [file].dream");
 
                 compile(data);
                 console.groupEnd();
             }
         });
     } else {
-        let general = "font-style: italic; font-weight: bold; font-size: 20px; border-radius: 5px; background-color: #000000; color: #ffffff; padding: 10px; background: -webkit-linear-gradient(180deg, #ffffff, cornflowerblue);-webkit-background-clip: text; -webkit-text-fill-color: transparent;";
 
-        console.log("%cdreamscript ⭐ %cv0.1.0%c by nikeedev", `${general}`, `${general} font-style: normal; padding: 10px; font-size: 20px;`, `${general} color: cornflowerblue;`);
-        console.group("%cUsage: <dreamscript source file>", `${general} padding: 3px; font-size: 12px;`);
+        console.log("dreamscript ⭐ v0.1.0 by nikeedev");
+        console.group("dreamscript ⭐: Usage: [file].dream");
         console.groupEnd();
     }
 }
