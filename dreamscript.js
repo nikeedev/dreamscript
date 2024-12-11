@@ -1,5 +1,6 @@
 const fs = require('node:fs');
-// wrote this just to use in this project xD
+
+/** wrote this just to use in this project xD */
 class Enum {
     constructor(...array_enums) {
         let enums = {};
@@ -42,7 +43,13 @@ const TokenTypes = new Enum(
     "Pixels", // px
     "Print", // print
     "Rem", // rem
-    "Unknown" //  ¯\_(ツ)_/¯,
+    "Comment", // //
+    "Unknown", //  ¯\_(ツ)_/¯,
+
+    // Commands
+    "Box",
+    "Circle",
+    "Text"
 );
 
 // console.log(TokenTypes);
@@ -65,14 +72,18 @@ class Lexer {
     chars = [];
     /** @type {Array<Token>} */
     tokens = [];
+    /** @type {boolean} */
+    include_whitespace;
 
     /**
      * @constructor 
      * @param {String} text
+     * @param {boolean} include_whitespace
     */
-    constructor(text) {
+    constructor(text, include_whitespace = true) {
         this.text = text;
         this.chars = text.split('');
+        this.include_whitespace = include_whitespace;
     }
 
     lex() {
@@ -86,7 +97,7 @@ class Lexer {
                 case ' ':
                 case '\t':
                 case '\r':
-                    this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
+                    if (this.include_whitespace) this.tokens.push(new Token(TokenTypes.Whitespace, this.chars[i]));
                     break;
 
                 case '.':
@@ -129,13 +140,14 @@ class Lexer {
 
                 case '/':
                     if (this.chars[i + 1] === '/') {
-                        let n = 1;
+                        let n = 2;
                         let sn = "";
-                        while (this.chars[i + n] != '\n') {
-                            n++;
+                        while (this.chars[i + n] != '\n' && this.chars[i + n] != undefined) {
+                            // console.log("comment: ", String.raw`${this.chars[i + n]}`);
                             sn += this.chars[i + n];
+                            n++;
                         }
-                        // this.tokens.push(new Token(TokenTypes.Comment, sn));
+                        this.tokens.push(new Token(TokenTypes.Comment, sn));
                         i += n;
                         break;
                     }
@@ -214,6 +226,7 @@ class Lexer {
                         switch (identifier) {
                             case "print":
                                 this.tokens.push(new Token(TokenTypes.Print, identifier));
+                                break;
 
                             case "if":
                                 this.tokens.push(new Token(TokenTypes.If, identifier));
@@ -229,6 +242,27 @@ class Lexer {
 
                             case "rem":
                                 this.tokens.push(new Token(TokenTypes.Rem, identifier));
+                                break;
+
+                            case "Box":
+                                if (this.chars[i + 1] === '(') {
+                                    let sn = identifier;
+
+                                    while (this.chars[i] !== ')') {
+                                        i++;
+                                        sn += this.chars[i];
+                                    }
+
+                                    this.tokens.push(new Token(TokenTypes.Box, sn));
+                                }
+                                break;
+
+                            case "Circle":
+                                this.tokens.push(new Token(TokenTypes.Circle, identifier));
+                                break;
+
+                            case "Text":
+                                this.tokens.push(new Token(TokenTypes.Text, identifier));
                                 break;
 
                             default:
@@ -254,10 +288,15 @@ const run_tokens = (tokens) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${process.argv[2]}</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        div {
+            position: absolute;
+        }
+    </style>
 </head>
 <body>
 `;
-    tokens.forEach(token => {
+    tokens.forEach((token, i) => {
         switch (token.token_type) {
             case TokenTypes.Whitespace:
                 css_src += `${token.value}`;
@@ -271,35 +310,84 @@ const run_tokens = (tokens) => {
                 css_src += `${token.value}`;
                 break;
 
-            case TokenTypes.OpenParen:
-                css_src += `${token.value}`;
-                break;
+            // case TokenTypes.OpenParen:
+            //     css_src += `${token.value}`;
+            //     break;
 
-            case TokenTypes.ClosedParen:
-                css_src += `${token.value}`;
-                break;
+            // case TokenTypes.ClosedParen:
+            //     css_src += `${token.value}`;
+            //     break;
 
-            case TokenTypes.OpenBrace:
-                css_src += `${token.value}`;
-                break;
+            // case TokenTypes.OpenBrace:
+            //     css_src += `${token.value}`;
+            //     break;
 
-            case TokenTypes.ClosedBrace:
-                css_src += `${token.value} `;
-                break;
+            // case TokenTypes.ClosedBrace:
+            //     css_src += `${token.value} `;
+            //     break;
 
-            case TokenTypes.String:
-                css_src += `"${token.value}"`;
-                break;
+            // case TokenTypes.String:
+            //     css_src += `"${token.value}"`;
+            //     break;
 
-            case TokenTypes.Comma:
-                css_src += `${token.value}`;
-                break;
+            // case TokenTypes.Comma:
+            //     css_src += `${token.value}`;
+            //     break;
 
             case TokenTypes.Number:
                 css_src += `${token.value}`;
+                if (tokens[i + 1].token_type !== TokenTypes.Pixels && tokens[i + 1].token_type !== TokenTypes.Percent && tokens[i + 1].token_type !== TokenTypes.Rem) {
+                    css_src += "px";
+                }
                 break;
 
+            case TokenTypes.Comment:
+                css_src += `/** ${token.value} **/`;
+                break;
+
+            case TokenTypes.Pixels:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.Rem:
+                css_src += `${token.value}`;
+                break;
+
+            case TokenTypes.Print:
+                html_src += `<p>${tokens[i + 2].value}</p>`;
+                break;
+
+            case TokenTypes.Box:
+                /* Box(id, width, height, x, y) */
+                let params = token.value.substring(3, token.value.length);
+                params = new Lexer(params, false);
+                params.lex();
+
+                params = params.tokens
+                    .map((token) => token.value)
+                    .filter((value) => value !== ',' && value !== '(' && value !== ')')
+                    .map((value, i, tokens) => {
+                        if (typeof value === 'number') {
+                            switch (tokens[i + 1]) {
+                                case "rem":
+                                    return `${value}rem`;
+                                case "px":
+                                    return `${value}px`;
+                                default:
+                                    return `${value}px`;
+                            }
+                        }
+                        return value;
+                    })
+                    .filter((value) => value !== 'rem' && value !== 'px');
+
+                html_src += `<div id="${params[0]}"></div>`;
+                css_src += `#${params[0]} {\n\twidth: ${params[1]};\n\theight: ${params[2]};\n\ttop: ${params[3]};\n\tleft: ${params[4]};\n\tbackground-color:${params[5]};\n}`
+                break;
+
+
             default:
+                // css_src += `${token.value}`;
                 break;
         }
     })
@@ -330,7 +418,7 @@ const compile = (text) => {
 };
 
 if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
-    if (process.argv[2] !== undefined) {
+    if (process.argv.length > 2) {
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
                 console.error("dreamscript ⭐ error reading/getting the source file: ", err);

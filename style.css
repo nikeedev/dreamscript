@@ -1,1 +1,11 @@
-Box("blue", 64, 64, 200, 200)
+#box {
+	width: 64px;
+	height: 64px;
+	top: 200px;
+	left: 200px;
+	background-color:blue;
+}
+
+
+
+/** nikee **/
