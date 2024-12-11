@@ -1,0 +1,49 @@
+
+#box {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    left: 256px;
+    top: 256px;
+    background-color:blue;
+}
+
+#circelo {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    left: 164px;
+    top: 200px;
+    background-color:#6459ee;
+    border-radius:200px;
+}
+
+#circelo1 {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    left: 228px;
+    top: 200px;
+    background-color:#6459ef;
+    border-radius:200px;
+}
+
+#circelo2 {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    left: 280px;
+    top: 200px;
+    background-color:#6459fa;
+    border-radius:200px;
+}
+
+/**  Text("text", 64, 64, 256, 256 "hello") **/
+
+#text {
+    position: absolute;
+    left: 256px;
+    top: 256px;
+}
+
+/**  nikee **/

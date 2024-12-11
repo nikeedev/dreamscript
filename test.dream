@@ -1,5 +1,10 @@
-Box("box", 64, 64, 200, 200, "blue")
+Box("box", 64, 64, 256, 256, "blue")
+Circle("circelo", 64, 64, 164, 200, "#6459ee")
+Circle("circelo1", 64, 64, 228, 200, "#6459ef")
+Circle("circelo2", 64, 64, 280, 200, "#6459fa")
 
-print("hello")
+// Text("text", 64, 64, 256, 256 "hello")
 
-//nikee
+Text("text", 256, 256 "hello")
+
+// nikee

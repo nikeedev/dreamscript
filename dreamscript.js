@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const { exit } = require('node:process');
 
 /** wrote this just to use in this project xD */
 class Enum {
@@ -258,11 +259,29 @@ class Lexer {
                                 break;
 
                             case "Circle":
-                                this.tokens.push(new Token(TokenTypes.Circle, identifier));
+                                if (this.chars[i + 1] === '(') {
+                                    let sn = identifier;
+
+                                    while (this.chars[i] !== ')') {
+                                        i++;
+                                        sn += this.chars[i];
+                                    }
+
+                                    this.tokens.push(new Token(TokenTypes.Circle, sn));
+                                }
                                 break;
 
                             case "Text":
-                                this.tokens.push(new Token(TokenTypes.Text, identifier));
+                                if (this.chars[i + 1] === '(') {
+                                    let sn = identifier;
+
+                                    while (this.chars[i] !== ')') {
+                                        i++;
+                                        sn += this.chars[i];
+                                    }
+
+                                    this.tokens.push(new Token(TokenTypes.Text, sn));
+                                }
                                 break;
 
                             default:
@@ -287,12 +306,12 @@ const run_tokens = (tokens) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${process.argv[2]}</title>
-    <link rel="stylesheet" href="style.css">
     <style>
-        div {
-            position: absolute;
+        body {
+            position: relative;
         }
     </style>
+    <link rel="stylesheet" href="${process.argv[2]}.style.css">
 </head>
 <body>
 `;
@@ -358,12 +377,12 @@ const run_tokens = (tokens) => {
                 break;
 
             case TokenTypes.Box:
-                /* Box(id, width, height, x, y) */
-                let params = token.value.substring(3, token.value.length);
-                params = new Lexer(params, false);
-                params.lex();
+                /* Box(id, width, height, x, y, color) */
+                let box_params = token.value.substring(3, token.value.length);
+                box_params = new Lexer(box_params, false);
+                box_params.lex();
 
-                params = params.tokens
+                box_params = box_params.tokens
                     .map((token) => token.value)
                     .filter((value) => value !== ',' && value !== '(' && value !== ')')
                     .map((value, i, tokens) => {
@@ -381,8 +400,64 @@ const run_tokens = (tokens) => {
                     })
                     .filter((value) => value !== 'rem' && value !== 'px');
 
-                html_src += `<div id="${params[0]}"></div>`;
-                css_src += `#${params[0]} {\n\twidth: ${params[1]};\n\theight: ${params[2]};\n\ttop: ${params[3]};\n\tleft: ${params[4]};\n\tbackground-color:${params[5]};\n}`
+                html_src += `<div id="${box_params[0]}"></div>`;
+                css_src += `\n#${box_params[0]} {\n    position: absolute;\n    width: ${box_params[1]};\n    height: ${box_params[2]};\n    left: ${box_params[3]};\n    top: ${box_params[4]};\n    background-color:${box_params[5]};\n}`
+                break;
+            
+            case TokenTypes.Circle:
+                /* Circle(id, width, height, x, y, color) */
+                let circle_params = token.value.substring(7, token.value.length);
+                circle_params = new Lexer(circle_params, false);
+                circle_params.lex();
+
+                circle_params = circle_params.tokens
+                    .map((token) => token.value)
+                    .filter((value) => value !== ',' && value !== '(' && value !== ')')
+                    .map((value, i, tokens) => {
+                        if (typeof value === 'number') {
+                            switch (tokens[i + 1]) {
+                                case "rem":
+                                    return `${value}rem`;
+                                case "px":
+                                    return `${value}px`;
+                                default:
+                                    return `${value}px`;
+                            }
+                        }
+                        return value;
+                    })
+                    .filter((value) => value !== 'rem' && value !== 'px');
+                
+                html_src += `<div id="${circle_params[0]}"></div>`;
+                css_src += `\n#${circle_params[0]} {\n    position: absolute;\n    width: ${circle_params[1]};\n    height: ${circle_params[2]};\n    left: ${circle_params[3]};\n    top: ${circle_params[4]};\n    background-color:${circle_params[5]};\n    border-radius:200px;\n}`
+                break;
+            
+            case TokenTypes.Text:
+                /* Box(id, width, height, x, y, color) */
+                let text_params = token.value.substring(4, token.value.length);
+                text_params = new Lexer(text_params, false);
+                text_params.lex();
+
+                text_params = text_params.tokens
+                    .map((token) => token.value)
+                    .filter((value) => value !== ',' && value !== '(' && value !== ')')
+                    .map((value, i, tokens) => {
+                        if (typeof value === 'number') {
+                            switch (tokens[i + 1]) {
+                                case "rem":
+                                    return `${value}rem`;
+                                case "px":
+                                    return `${value}px`;
+                                default:
+                                    return `${value}px`;
+                            }
+                        }
+                        return value;
+                    })
+                    .filter((value) => value !== 'rem' && value !== 'px');
+
+                html_src += `<p id="${text_params[0]}">${text_params[3]}</p>`;
+                css_src += `\n#${text_params[0]} {\n    position: absolute;\n    left: ${text_params[1]};\n    top: ${text_params[2]};\n}`
                 break;
 
 
@@ -397,8 +472,8 @@ const run_tokens = (tokens) => {
 </html>
     `;
     try {
-        fs.writeFileSync('index.html', html_src);
-        fs.writeFileSync('style.css', css_src);
+        fs.writeFileSync(`${process.argv[2]}.index.html`, html_src);
+        fs.writeFileSync(`${process.argv[2]}.style.css`, css_src);
         // file written successfully
     } catch (err) {
         console.error(err);
@@ -408,9 +483,13 @@ const run_tokens = (tokens) => {
 
 const compile = (text) => {
     const compiler = new Lexer(text);
-    compiler.lex();
-
-    console.log("dreamscript ⭐ v0.1.0 by nikeedev");
+    
+    try {
+        compiler.lex();
+    } catch (err) {
+        console.error("dreamscript ⭐ error compiling the source file: ", err);
+        exit(0);
+    }
 
     // console.table(compiler.tokens);
 
@@ -421,11 +500,12 @@ if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
     if (process.argv.length > 2) {
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
-                console.error("dreamscript ⭐ error reading/getting the source file: ", err);
+                console.error("dreamscript ⭐ error reading/getting the source file: ", err.message);
+                console.log("\ndreamscript ⭐ v0.1.0 by nikeedev");
+                console.group("dreamscript ⭐: Usage: [file].dream");
                 return;
             } else {
                 console.log("dreamscript ⭐ v0.1.0 by nikeedev");
-                console.group("dreamscript ⭐: Usage: [file].dream");
 
                 compile(data);
                 console.groupEnd();
