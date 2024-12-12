@@ -1,7 +1,7 @@
 {
   "name": "dreamscript",
-  "version": "1.0.0",
-  "description": "Small language in JavaScript",
+  "version": "0.2.3-alpha-build-12-12-2024",
+  "description": "Small programming language in JavaScript for making websites in pure CSS and HTML",
   "main": "dreamscript.js",
   "scripts": {
     "start": "node dreamscript.js",

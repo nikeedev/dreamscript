@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const { exit } = require('node:process');
+const version = "0.2.3-alpha_build.12-12-2024"
 
 /** wrote this just to use in this project xD */
 class Enum {
@@ -501,11 +502,11 @@ if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
                 console.error("dreamscript ⭐ error reading/getting the source file: ", err.message);
-                console.log("\ndreamscript ⭐ v0.1.0 by nikeedev");
+                console.log(`\ndreamscript ⭐ v${version} by nikeedev`);
                 console.group("dreamscript ⭐: Usage: [file].dream");
                 return;
             } else {
-                console.log("dreamscript ⭐ v0.1.0 by nikeedev");
+                console.log(`dreamscript ⭐ v${version} by nikeedev`);
 
                 compile(data);
                 console.groupEnd();
