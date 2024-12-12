@@ -143,6 +143,12 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
+# dreamscript binaries
+
 sea-prep.blob
 dreamscript.exe
 dreamscript.zip
+
+# dreamscript test output
+*.html
+*.css
