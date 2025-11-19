@@ -5,6 +5,6 @@ Circle("circelo2", 64, 64, 292, 200, "#6459fa")
 
 // Text("text", 64, 64, 256, 256 "hello")
 
-Text("text", 256, 256 "hello")
+Text("text", 256, 256 "hello world!")
 
 // nikee
