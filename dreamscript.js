@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const { exit } = require('node:process');
-const version = "0.2.3-alpha_build.12-12-2024"
+const version = "0.2.0-19-11-2025"
 
 /** wrote this just to use in this project xD */
 class Enum {
@@ -472,9 +472,18 @@ const run_tokens = (tokens) => {
 </body>
 </html>
     `;
+
+    let outdir = "out";
+
     try {
-        fs.writeFileSync(`${process.argv[2]}.index.html`, html_src);
-        fs.writeFileSync(`${process.argv[2]}.style.css`, css_src);
+        if (!fs.existsSync(outdir)) {
+            fs.mkdir(outdir, (err) => {
+                if (err) throw err;
+            }); 
+        }
+
+        fs.writeFileSync(`${outdir}/${process.argv[2]}.index.html`, html_src);
+        fs.writeFileSync(`${outdir}/${process.argv[2]}.style.css`, css_src);
         // file written successfully
     } catch (err) {
         console.error(err);
@@ -514,7 +523,7 @@ if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
         });
     } else {
 
-        console.log("dreamscript ⭐ v0.1.0 by nikeedev");
+        console.log("dreamscript ⭐ v0.2.0 by nikeedev");
         console.group("dreamscript ⭐: Usage: [file].dream");
         console.groupEnd();
     }

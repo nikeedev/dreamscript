@@ -1,6 +1,6 @@
 {
   "name": "dreamscript",
-  "version": "0.2.3-alpha-build-12-12-2024",
+  "version": "0.2.9-19-11-2025",
   "description": "Small programming language in JavaScript for making websites in pure CSS and HTML",
   "main": "dreamscript.js",
   "scripts": {
