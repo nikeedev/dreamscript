@@ -1,11 +1,11 @@
 {
   "name": "dreamscript",
-  "version": "0.2.9-19-11-2025",
+  "version": "1.1.0",
   "description": "Small programming language in JavaScript for making websites in pure CSS and HTML",
   "main": "dreamscript.js",
   "scripts": {
     "start": "node dreamscript.js",
-    "build": "@echo off && node --experimental-sea-config sea-config.json && npx postject dreamscript.exe NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite && del sea-prep.blob && echo done!"
+    "build": "node --experimental-sea-config sea-config.json && npx postject dreamscript NODE_SEA_BLOB sea.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite && del sea-prep.blob && echo done!"
   },
   "keywords": [],
   "author": "nikeedev",

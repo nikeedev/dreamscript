@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const { exit } = require('node:process');
-const version = "0.2.0-19-11-2025"
+const version = "1.1.0"
 
 /** wrote this just to use in this project xD */
 class Enum {
@@ -306,13 +306,13 @@ const run_tokens = (tokens) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${process.argv[2]}</title>
+    <title>${process.argv[2].split(".")[0]}</title>
     <style>
         body {
             position: relative;
         }
     </style>
-    <link rel="stylesheet" href="${process.argv[2]}.style.css">
+    <link rel="stylesheet" href="${process.argv[2].split(".")[0]}.css">
 </head>
 <body>
 `;
@@ -482,8 +482,8 @@ const run_tokens = (tokens) => {
             }); 
         }
 
-        fs.writeFileSync(`${outdir}/${process.argv[2]}.index.html`, html_src);
-        fs.writeFileSync(`${outdir}/${process.argv[2]}.style.css`, css_src);
+        fs.writeFileSync(`${outdir}/${process.argv[2].split(".")[0]}.html`, html_src);
+        fs.writeFileSync(`${outdir}/${process.argv[2].split(".")[0]}.css`, css_src);
         // file written successfully
     } catch (err) {
         console.error(err);
@@ -497,7 +497,7 @@ const compile = (text) => {
     try {
         compiler.lex();
     } catch (err) {
-        console.error("dreamscript ⭐ error compiling the source file: ", err);
+        console.error("dreamscript ⭐error compiling the source file: ", err);
         exit(0);
     }
 
@@ -510,21 +510,22 @@ if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
     if (process.argv.length > 2) {
         fs.readFile(process.argv[2], 'utf8', (err, data) => {
             if (err) {
-                console.error("dreamscript ⭐ error reading/getting the source file: ", err.message);
-                console.log(`\ndreamscript ⭐ v${version} by nikeedev`);
-                console.group("dreamscript ⭐: Usage: [file].dream");
+                console.error("error reading/getting the source file: ", err.message);
+                console.log(`\ndreamscript ⭐v${version} by nikeedev`);
+                console.log("Usage: dreamscript <file>");
                 return;
-            } else {
-                console.log(`dreamscript ⭐ v${version} by nikeedev`);
+            } else { 
+                try {
+                    compile(data);
+                } catch (err) {
+                    console.err(err);
+                }
 
-                compile(data);
-                console.groupEnd();
+                console.log("Compiled!");
             }
         });
     } else {
-
-        console.log("dreamscript ⭐ v0.2.0 by nikeedev");
-        console.group("dreamscript ⭐: Usage: [file].dream");
-        console.groupEnd();
+        console.log(`dreamscript ⭐v${version} by nikeedev`);
+        console.log("Usage: dreamscript <file>");
     }
 }

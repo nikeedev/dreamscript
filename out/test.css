@@ -38,7 +38,7 @@
     border-radius:200px;
 }
 
-/**  Text("text", 64, 64, 256, 256 "hello") **/
+/**  Text("text", 64, 64, 256, 256 "hello") **/
 
 #text {
     position: absolute;
@@ -46,4 +46,4 @@
     top: 256px;
 }
 
-/**  nikee **/
+/**  nikee **/
